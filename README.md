@@ -1,4 +1,4 @@
-# goitneo-python-hw-2-group-10
+# goitneo-python-final-project-team-17
 
 Depending on your python version, run test.py file to run unit tests in specific folder tests
 
