@@ -1,4 +1,5 @@
 from decorators.input_error import input_error
+from exceptions.address_exists import AddressExists
 from models.address_book import AddressBook
 from models.record import Record
 
@@ -55,9 +56,15 @@ class Bot:
     def birthdays(self):
         return self.addressBook.get_birthdays_per_week()
 
+    @input_error
     def add_email(self, args):
         name, email = args
         return self.addressBook.add_email(name, email)
+
+    @input_error
+    def add_address(self, args):
+        name, address = args
+        return self.addressBook.add_address(name, address)
 
     def run(self):
         print("Welcome to the assistant bot!")
@@ -87,6 +94,8 @@ class Bot:
                     print(self.birthdays())
                 elif command == "add-email":
                     print(self.add_email(args))
+                elif command == "add-address":
+                    print(self.add_address(args))
                 else:
                     print("Invalid command.")
             except Exception:

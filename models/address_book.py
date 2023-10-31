@@ -34,6 +34,13 @@ class AddressBook(UserDict):
             return "Email was added."
         raise KeyError
 
+    def add_address(self, name, address):
+        target_record: Record = self.find(name)
+        if target_record:
+            target_record.add_address(address)
+            return "Address was added."
+        raise KeyError
+
     def find(self, key):
         name = Name(key)
         res = self.data.get(name.value)
