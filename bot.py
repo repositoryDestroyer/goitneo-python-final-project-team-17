@@ -78,6 +78,14 @@ class Bot:
 
         return "Note '{}' successfully added".format(note.title)
 
+    def show_notes(self):
+        self.notes = load_notes(notes_json)
+        if self.notes:
+            for note in self.notes:
+                return note, self.notes
+        return "There are no notes..."
+
+    
     def run(self):
         print("Welcome to the assistant bot!")
 
