@@ -55,6 +55,10 @@ class Bot:
     def birthdays(self):
         return self.addressBook.get_birthdays_per_week()
 
+    def add_email(self, args):
+        name, email = args
+        return self.addressBook.add_email(name, email)
+
     def run(self):
         print("Welcome to the assistant bot!")
         while True:
@@ -81,6 +85,8 @@ class Bot:
                     print(self.show_birthday(args))
                 elif command == "birthdays":
                     print(self.birthdays())
+                elif command == "add-email":
+                    print(self.add_email(args))
                 else:
                     print("Invalid command.")
             except Exception:
