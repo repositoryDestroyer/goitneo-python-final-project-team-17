@@ -95,15 +95,13 @@ class Bot:
         return note
 
     @note_error
-    def get_note(self, args):
+    def get_note_by_title(self, args):
         note = args[0].strip().lower()
 
         result = []
         for key, value in self.notes.items():
-            if note in "{} {} {}".format(str(value.title).lower(),
-                                         str(value.text).lower(),
-                                         str(' '.join([str(tag) for tag in value.tags])).lower()):
-                result = ('{} | title: {},text: {}, tags: {}'.format(key, value.title, value.text, value.tags))
+            if note == key:
+                result = ('{} | title: {}, text: {}, tags: {}'.format(key, value.title, value.text, value.tags))
                 return result
         return 'There are no results with {}'.format(note)
 
@@ -164,7 +162,13 @@ class Bot:
 
             case _:
                 raise IndexError('Incorrect input.') from None
- 
+
+    @note_error
+    def find_notes_by_word(self, args):
+        word = args[0].strip().lower()
+
+        return self.notes.find(word)
+
     @input_error
     def add_email(self, args):
         name, email = args
@@ -210,13 +214,15 @@ class Bot:
                 elif command == "remove-note":
                     print(self.remove_note(args))
                 elif command == "get-note":
-                    print(self.get_note(args))
+                    print(self.get_note_by_title(args))
                 elif command == "update-note":
                     print(self.update_note(args))
                 elif command == "add-email":
                     print(self.add_email(args))
                 elif command == "add-address":
                     print(self.add_address(args))
+                elif command == "find-notes":
+                    print(self.find_notes_by_word(args))
                 else:
                     print("Invalid command.")
             except Exception as e:

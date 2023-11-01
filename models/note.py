@@ -56,7 +56,7 @@ class Note():
         text_to_str = '{}'.format(self.text)
         tags_to_str = ','.join([str(tag) for tag in self.__tags])
 
-        return title_to_str + text_to_str + tags_to_str
+        return '{0} | title: {0}, text: {1}, tags: {2}'.format(title_to_str, text_to_str, tags_to_str)
 
 
 class Tag():
@@ -90,12 +90,10 @@ class Notes(UserDict):
 
     def find(self, word: str):
         notes = []
-        for note in self.data.values():
+        for note in self.values():
             if word.lower() in note.__repr__():
-                notes.append(note)
-            return notes
-        else:
-            "There is nothing!"
+                notes.append({note})
+        return notes or "There is nothing!"
 
     def delete_note(self, word: str):
         for note in self.values():
