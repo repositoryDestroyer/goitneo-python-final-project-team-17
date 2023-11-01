@@ -103,7 +103,7 @@ class Bot:
             if note in "{} {} {}".format(str(value.title).lower(),
                                          str(value.text).lower(),
                                          str(' '.join([str(tag) for tag in value.tags])).lower()):
-                result = ('Note {} : title: {},text: {}, tags: {}'.format(key, value.title, value.text, value.tags))
+                result = ('{} | title: {},text: {}, tags: {}'.format(key, value.title, value.text, value.tags))
                 return result
         return 'There are no results with {}'.format(note)
 

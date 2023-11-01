@@ -9,7 +9,7 @@ def note_error(func):
         except IndexError as e:
             return '{}'.format(e)
         except KeyError:
-            return 'There is no such contact.'
+            return 'There is no such note.'
         except TypeError as e:
             return 'You got TypeError {}'.format(e)
         except Exception as e:

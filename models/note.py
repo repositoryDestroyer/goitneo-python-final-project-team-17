@@ -108,7 +108,7 @@ class Notes(UserDict):
     def get_all_notes(self):
         result = []
         for key, value in self.items():
-            result.append('Note {} : title: {}, text: {}, tags: {}'.format(key, value.title, value.text, value.tags))
+            result.append('{} | title: {}, text: {}, tags: {}'.format(key, value.title, value.text, value.tags))
         return result
 
     def to_dict(self):
