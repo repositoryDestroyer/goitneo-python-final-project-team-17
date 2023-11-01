@@ -54,7 +54,7 @@ class Note():
     def __repr__(self):
         title_to_str = '{}'.format(self.title)
         text_to_str = '{}'.format(self.text)
-        tags_to_str = ','.join([str(tag) for tag in {self.__tags}])
+        tags_to_str = ','.join([str(tag) for tag in self.__tags])
 
         return title_to_str + text_to_str + tags_to_str
 
@@ -83,10 +83,10 @@ class Tag():
 
 class Notes(UserDict):
     def add_note(self, note: Note):
-        if self.get(note.title):
+        if note.title in self.keys():
             return '{} already exists.'.format(note.title)
-        self.data[note.title] = note
-        return '{} has been added to Notes successfully!'.format(note.title.title())
+        self[note.title] = note
+        return '{} has been added to Notes successfully!'.format(note.title)
 
     def find(self, word: str):
         notes = []
@@ -98,14 +98,18 @@ class Notes(UserDict):
             "There is nothing!"
 
     def delete_note(self, word: str):
-        for note in self.data.values():
+        for note in self.values():
             if word.lower() == note.title.lower():
                 removed = note.title
-        self.data.pop(removed)
-        return 'Note {} has been removed'.format(self), self
+                self.pop(removed)
+                return 'Note {} has been removed'.format(removed)
+        return 'There is no such note.'
 
     def get_all_notes(self):
-        return self.data
+        result = []
+        for key, value in self.items():
+            result.append('Note {} : title: {}, text: {}, tags: {}'.format(key, value.title, value.text, value.tags))
+        return result
 
     def to_dict(self):
         data = {}
