@@ -163,7 +163,7 @@ class Bot:
                 return '{} has been changed to {}'.format(old_tags, new_tags)
 
             case _:
-                raise IndexError('Введіть коррекно дані') from None
+                raise IndexError('Incorrect input.') from None
  
     @input_error
     def add_email(self, args):
