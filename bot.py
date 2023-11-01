@@ -114,8 +114,8 @@ class Bot:
         try:
             if args[0]:
                 title = ' '.join(args).lower()
-        except IndexError:
-            raise IndexError('Incorrect title input.') from None
+        except IndexError as e:
+            return '{}'.format(e)
 
         for key, value in self.notes.items():
             if title == key.lower():
