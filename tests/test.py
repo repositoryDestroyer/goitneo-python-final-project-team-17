@@ -3,6 +3,11 @@ import unittest
 from datetime import datetime, timedelta
 from collections import defaultdict
 
+import pytest
+from decorators.input_error import input_error
+from exceptions.address_exists import AddressExists
+from exceptions.email_exists import EmailExists
+from exceptions.wrong_email_format import WrongEmailFormat
 from models.address_book import *
 from bot import Bot
 
@@ -147,7 +152,8 @@ class Test(unittest.TestCase):
         bot.add_contact(["Joshua", "1114511111"])
         result = bot.show_phone(["Joshua"])
 
-        self.assertEqual(str(result), "Contact name: Joshua, phones: 1114511111")
+        self.assertEqual(
+            str(result), "Contact name: Joshua, phones: 1114511111")
 
     def test_show_phone_not_found(self):
         bot = Bot()
@@ -174,4 +180,47 @@ class Test(unittest.TestCase):
         self.assertEqual(
             str(result),
             "Contact name: Joshua, phones: 1110011111\nContact name: Steve, phones: 2928274219",
+        )
+
+    def test_add_email(self):
+        bot = Bot()
+        bot.add_contact(["Joshua", "1110011111"])
+        result = bot.add_email(["Joshua", "joshua@gmail.com"])
+
+        record: Record = bot.addressBook.find("Joshua")
+        self.assertEqual(
+            str(record.email),
+            "joshua@gmail.com",
+        )
+        self.assertEqual(
+            str(result),
+            "Email was added.",
+        )
+
+    # def test_add_email_twice(self):
+    #     bot = Bot()
+    #     bot.add_contact(["Joshua", "1110011111"])
+    #     bot.add_email(["Joshua", "joshua@gmail.com"])
+    #     with pytest.raises(EmailExists):
+    #         bot.add_email(["Joshua", "joshua2@gmail.com"])
+
+    # def test_add_email_invalid_format(self):
+    #     bot = Bot()
+    #     bot.add_contact(["Joshua", "1110011111"])
+    #     with pytest.raises(WrongEmailFormat):
+    #         bot.add_email(["Joshua", "joshua@gmail@com"])
+
+    def test_add_address(self):
+        bot = Bot()
+        bot.add_contact(["Joshua", "1110011111"])
+        result = bot.add_address(["Joshua", "Street 1 Some town"])
+
+        record: Record = bot.addressBook.find("Joshua")
+        self.assertEqual(
+            str(record.address),
+            "Street 1 Some town",
+        )
+        self.assertEqual(
+            str(result),
+            "Address was added.",
         )

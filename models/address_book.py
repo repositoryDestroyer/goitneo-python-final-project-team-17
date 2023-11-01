@@ -30,6 +30,20 @@ class AddressBook(UserDict):
             return target_record.show_birthday()
         raise KeyError
 
+    def add_email(self, name, email):
+        target_record: Record = self.find(name)
+        if target_record:
+            target_record.add_email(email)
+            return "Email was added."
+        raise KeyError
+
+    def add_address(self, name, address):
+        target_record: Record = self.find(name)
+        if target_record:
+            target_record.add_address(address)
+            return "Address was added."
+        raise KeyError
+
     def find(self, key):
         name = Name(key)
         res = self.data.get(name.value)
@@ -77,10 +91,12 @@ class AddressBook(UserDict):
 
             # check current weekday is weekend, move to the next monday
             if weekday in [5, 6]:
-                prepared_data["Monday"] = (prepared_data["Monday"] or []) + [name]
+                prepared_data["Monday"] = (
+                    prepared_data["Monday"] or []) + [name]
             else:
                 birthday = birthday_this_year.strftime("%A")
-                prepared_data[birthday] = (prepared_data[birthday] or []) + [name]
+                prepared_data[birthday] = (
+                    prepared_data[birthday] or []) + [name]
 
         if len(prepared_data) == 0:
             print("There are no birthday colleagues during next week.")

@@ -1,3 +1,7 @@
+from exceptions.address_exists import AddressExists
+from exceptions.email_exists import EmailExists
+from .address import Address
+from .email import Email
 from .name import Name
 from .phone import Phone
 from .birthday import Birthday
@@ -9,6 +13,8 @@ class Record:
         self.name = Name(name)
         self.phones = []
         self.birthday = None
+        self.email = None
+        self.address = None
 
     def get_name(self):
         return self.name
@@ -25,6 +31,19 @@ class Record:
 
     def show_birthday(self):
         return self.birthday
+
+    def add_email(self, email):
+        if self.email:
+            raise EmailExists
+        self.email = Email(email)
+
+        return "Email successfully added."
+
+    def add_address(self, address):
+        if self.address:
+            raise AddressExists
+        self.address = Address(address)
+        return "Address successfully added."
 
     def rewrite_phone(self, new_number):
         if not new_number:

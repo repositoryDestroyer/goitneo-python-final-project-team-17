@@ -1,5 +1,6 @@
 from decorators.input_error import input_error
 from decorators.note_error import note_error
+from exceptions.address_exists import AddressExists
 from models.address_book import AddressBook
 from models.note import Note, Notes, Tag
 from models.record import Record
@@ -164,6 +165,17 @@ class Bot:
 
             case _:
                 raise IndexError('Введіть коррекно дані') from None
+ 
+    @input_error
+    def add_email(self, args):
+        name, email = args
+        return self.addressBook.add_email(name, email)
+
+    @input_error
+    def add_address(self, args):
+        name, address = args
+        return self.addressBook.add_address(name, address)
+
 
     def run(self):
         print("Welcome to the assistant bot!")
@@ -202,6 +214,10 @@ class Bot:
                     print(self.get_note(args))
                 elif command == "update-note":
                     print(self.update_note(args))
+                elif command == "add-email":
+                    print(self.add_email(args))
+                elif command == "add-address":
+                    print(self.add_address(args))
                 else:
                     print("Invalid command.")
             except Exception as e:

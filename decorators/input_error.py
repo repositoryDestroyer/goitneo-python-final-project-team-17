@@ -1,3 +1,6 @@
+from exceptions.address_exists import AddressExists
+from exceptions.email_exists import EmailExists
+from exceptions.wrong_email_format import WrongEmailFormat
 from exceptions.wrong_phone_format import WrongPhoneFormat
 from exceptions.wrong_birthday_format import WrongBirthdayFormat
 
@@ -12,7 +15,7 @@ def input_error(func):
             return "Enter user name"
         except KeyError:
             return "Wrong key"
-        except (WrongPhoneFormat, WrongBirthdayFormat) as e:
+        except (WrongPhoneFormat, WrongBirthdayFormat, WrongEmailFormat, AddressExists, EmailExists) as e:
             return e
         except Exception as e:
             return f"Unexpected error: {str(e)}"
