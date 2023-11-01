@@ -88,7 +88,7 @@ class Notes(UserDict):
         self.data[note.title] = note
         return '{} has been added to Notes successfully!'.format(note.title.title())
 
-    def get_note(self, word: str):
+    def find(self, word: str):
         notes = []
         for note in self.data.values():
             if word.lower() in note.__repr__():
@@ -117,13 +117,3 @@ class Notes(UserDict):
         for note in data:
             raw_note = data[note]
             self.add_note(Note(raw_note['title'], raw_note['text'], [Tag(value) for value in raw_note['tags']]))
-
-    def paginator(self, notes_num):
-        start = 0
-        while True:
-            result_keys = list(self.data)[start: start + notes_num]
-            result_list = [f"{key}: {self.data.get(key).title},{self.data.get(key).text},{self.data.get(key).tags}" for key in result_keys]
-            if not result_keys:
-                break
-            yield '\n'.join(result_list)
-            start += notes_num
