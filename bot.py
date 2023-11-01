@@ -68,7 +68,6 @@ class Bot:
     @note_error
     def create_note(self, args):
         title = args[0]
-        notes: Notes = self.notes
 
         text = input("Input Note text: ")
         raw_tags = input("Input tags like tag1,tag2,tag3... : ")
@@ -76,10 +75,10 @@ class Bot:
         tags = [Tag(tag.strip()) for tag in raw_tags.split(',')]
         note = Note(title=title, text=text, tags=tags)
 
-        notes.add_note(note)
-        dump_notes(notes_json, notes.to_dict())
+        response = self.notes.add_note(note)
+        dump_notes(notes_json, self.notes.to_dict())
 
-        return "Note {} successfully added".format(note.title)
+        return response
 
     @note_error
     def show_notes(self):
@@ -88,12 +87,12 @@ class Bot:
     @note_error
     def remove_note(self, args):
         try:
-            word, notes = self.notes.delete_note(args[0])
+            note = self.notes.delete_note(args[0])
         except IndexError:
             return 'There is no the note.'
 
-        dump_notes(notes_json, notes.to_dict())
-        return 'Note {} has been deleted.'.format(word.capitalize())
+        dump_notes(notes_json, self.notes.to_dict())
+        return note
 
     @note_error
     def get_note(self, args):
@@ -104,7 +103,7 @@ class Bot:
             if note in "{} {} {}".format(str(value.title).lower(),
                                          str(value.text).lower(),
                                          str(' '.join([str(tag) for tag in value.tags])).lower()):
-                result = ('{} : {}, {}, {}'.format(key, value.title, value.text, value.tags))
+                result = ('Note {} : title: {},text: {}, tags: {}'.format(key, value.title, value.text, value.tags))
                 return result
         return 'There are no results with {}'.format(note)
 
@@ -123,7 +122,7 @@ class Bot:
                 note = value
 
         if note == None:
-            return "No Note.", self.notes
+            return "No Note."
 
         change_request = input("Press 1 for title changing, Press 2 for text changing, Press 3 for tag changing: ")
 
