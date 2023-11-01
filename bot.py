@@ -7,13 +7,14 @@ from utils.contacts import dump_notes, load_notes
 
 
 notes_json = 'notes.json'
-contacts_json = 'contacts.json'
 
 
 class Bot:
+
     def __init__(self):
         self.addressBook = AddressBook()
         self.notes = Notes()
+        self.notes.from_dict(load_notes(notes_json))
 
     def parse_input(self, user_input):
         cmd, *args = user_input.split()
@@ -66,6 +67,7 @@ class Bot:
     @note_error
     def create_note(self, args):
         title = args[0]
+        notes: Notes = self.notes
 
         text = input("Input Note text: ")
         raw_tags = input("Input tags like tag1,tag2,tag3... : ")
@@ -73,19 +75,96 @@ class Bot:
         tags = [Tag(tag.strip()) for tag in raw_tags.split(',')]
         note = Note(title=title, text=text, tags=tags)
 
-        self.notes.add_note(note)
-        dump_notes(notes_json, self.notes.to_dict())
+        notes.add_note(note)
+        dump_notes(notes_json, notes.to_dict())
 
-        return "Note '{}' successfully added".format(note.title)
+        return "Note {} successfully added".format(note.title)
 
+    @note_error
     def show_notes(self):
-        self.notes = load_notes(notes_json)
-        if self.notes:
-            for note in self.notes:
-                return note, self.notes
-        return "There are no notes..."
+        return self.notes.get_all_notes()
 
-    
+    @note_error
+    def remove_note(self, args):
+        try:
+            word, notes = self.notes.delete_note(args[0])
+        except IndexError:
+            return 'There is no the note.'
+
+        dump_notes(notes_json, notes.to_dict())
+        return 'Note {} has been deleted.'.format(word.capitalize())
+
+    @note_error
+    def get_note(self, args):
+        note = args[0].strip().lower()
+
+        result = []
+        for key, value in self.notes.items():
+            if note in "{} {} {}".format(str(value.title).lower(),
+                                         str(value.text).lower(),
+                                         str(' '.join([str(tag) for tag in value.tags])).lower()):
+                result = ('{} : {}, {}, {}'.format(key, value.title, value.text, value.tags))
+                return result
+        return 'There are no results with {}'.format(note)
+
+    @note_error
+    def update_note(self, args):
+        note: Note = None
+
+        try:
+            if args[0]:
+                title = ' '.join(args).lower()
+        except IndexError:
+            raise IndexError('Incorrect title input.') from None
+
+        for key, value in self.notes.items():
+            if title == key.lower():
+                note = value
+
+        if note == None:
+            return "No Note.", self.notes
+
+        change_request = input("Press 1 for title changing, Press 2 for text changing, Press 3 for tag changing: ")
+
+        match change_request:
+            case '1':
+                old_title = note.title
+                new_title = input('Input new title: ')
+
+                if new_title == '':
+                    raise IndexError("Incorrect title input.")
+
+                note.update_title(new_title)
+                self.notes.pop(old_title)
+                self.notes[new_title] = note
+                dump_notes(notes_json, self.notes.to_dict())
+
+                return '{} has been changed to {}'.format(old_title, new_title)
+
+            case '2':
+                old_text = note.text
+                new_text = input('Input new text: ')
+
+                note.update_text(new_text)
+                self.notes[note.title] = note
+                dump_notes(notes_json, self.notes.to_dict())
+
+                return '{} has been changed to {}'.format(old_text, new_text)
+
+            case '3':
+                old_tags = note.tags
+                raw_new_tags = input('Input new tag: ')
+
+                new_tags = [Tag(tag.strip()) for tag in raw_new_tags.split(',')]
+                note.update_tags(new_tags)
+                self.notes[note.title] = note
+                dump_notes(notes_json, self.notes.to_dict())
+
+                return '{} has been changed to {}'.format(old_tags, new_tags)
+
+            case _:
+                raise IndexError('Введіть коррекно дані') from None
+
     def run(self):
         print("Welcome to the assistant bot!")
 
@@ -117,16 +196,14 @@ class Bot:
                     print(self.create_note(args))
                 elif command == "show-notes":
                     print(self.show_notes())
-                elif command == "find-note":
-                    print(self.find_note(args))
-                elif command == "delete-note":
-                    print(self.delete_note(args))
+                elif command == "remove-note":
+                    print(self.remove_note(args))
                 elif command == "get-note":
                     print(self.get_note(args))
                 elif command == "update-note":
                     print(self.update_note(args))
                 else:
                     print("Invalid command.")
-            except Exception:
-                print("Invalid arguments for command:", command)
+            except Exception as e:
+                print('Error: ===> {}'.format(e))
 
