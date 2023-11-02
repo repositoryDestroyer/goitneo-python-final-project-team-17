@@ -1,6 +1,9 @@
 from datetime import datetime
 from collections import defaultdict
 from collections import UserDict
+
+from exceptions.missing_record import MissingRecord
+from exceptions.record_exists import RecordExists
 from .phone import Phone
 from .record import Record
 from .name import Name
@@ -12,58 +15,55 @@ class AddressBook(UserDict):
             return
 
         record_name = record.get_name()
+
+        if record_name.value in self.data:
+            raise RecordExists
         self.data[record_name.value] = record
 
     def add_birthday(self, name, birthday):
         target_record: Record = self.find(name)
-        if target_record:
-            target_record.add_birthday(birthday)
-            return "Birthday was added."
-        raise KeyError
+        target_record.add_birthday(birthday)
+        return "Birthday was added."
 
-    def show_birthday(self, name):
-        target_record: Record = self.find(name)
-        if target_record:
-            return target_record.show_birthday()
-        raise KeyError
+    def edit_birthday(self, name, birthday):
+        record: Record = self.find(name)
+        record.edit_birthday(birthday)
+        return "Birthday was edited"
 
     def add_email(self, name, email):
         target_record: Record = self.find(name)
-        if target_record:
-            target_record.add_email(email)
-            return "Email was added."
-        raise KeyError
+        target_record.add_email(email)
+        return "Email was added."
+
+    def edit_email(self, name, email):
+        target_record: Record = self.find(name)
+        target_record.edit_email(email)
+        return "Email edited."
 
     def add_address(self, name, address):
         target_record: Record = self.find(name)
-        if target_record:
-            target_record.add_address(address)
-            return "Address was added."
-        raise KeyError
+        target_record.add_address(address)
+        return "Address was added."
 
-    def find(self, key):
-        name = Name(key)
-        res = self.data.get(name.value)
-        return res
-
-    def edit_record_phone(self, name, phone):
+    def edit_address(self, name, address):
         target_record: Record = self.find(name)
+        target_record.edit_address(address)
+        return "Address was edited."
 
-        if target_record is None:
-            return "Contact was not found."
+    def find(self, name):
+        if name in self.data:
+            return self.data[name]
+        raise MissingRecord
 
-        target_phone: Phone = target_record.find_phone(phone)
+    def edit_phone(self, name, old_phone, new_phone):
+        record: Record = self.find(name)
+        record.edit_phone(old_phone, new_phone)
+        return "Phone was edited."
 
-        # There is nothing to be updated (the phone is actual)
-        if target_phone is not None:
-            return "Contact updated."
-        else:
-            target_record.rewrite_phone(phone)
-
-        return "Contact updated."
-
-    def delete(self, key):
-        del self.data[key]
+    def delete(self, name):
+        self.find(name)  # To validate that it exists
+        del self.data[name]
+        return "Contact deleted."
 
     def get_birthdays_per_week(self):
         today = datetime.today().date()
@@ -107,9 +107,7 @@ class AddressBook(UserDict):
         return prepared_data
 
     def __str__(self):
-        prepared_data = []
-
+        result = ""
         for value in self.data.values():
-            prepared_data.append(str(value))
-
-        return "\n".join(prepared_data)
+            result += str(value)
+        return result.strip()

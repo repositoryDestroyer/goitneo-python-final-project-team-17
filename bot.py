@@ -24,23 +24,17 @@ class Bot:
         return "Contact added."
 
     @input_error
-    def change_contact(self, args):
-        name, phone = args
-
-        return self.addressBook.edit_record_phone(name, phone)
+    def edit_phone(self, args):
+        name, oldPhone, newPhone = args
+        return self.addressBook.edit_phone(name, oldPhone, newPhone)
 
     @input_error
-    def show_phone(self, args):
+    def show_contact(self, args):
         name = args[0]
-
         search_result: Record = self.addressBook.find(name)
-
-        if search_result is None:
-            return "Contact was not found."
-
         return search_result
 
-    def show_all(self):
+    def show_all_contacts(self):
         return str(self.addressBook)
 
     @input_error
@@ -49,9 +43,9 @@ class Bot:
         return self.addressBook.add_birthday(name, birthday)
 
     @input_error
-    def show_birthday(self, args):
-        name = args[0]
-        return self.addressBook.show_birthday(name)
+    def edit_birthday(self, args):
+        name, birthday = args
+        return self.addressBook.edit_birthday(name, birthday)
 
     def birthdays(self):
         return self.addressBook.get_birthdays_per_week()
@@ -62,9 +56,24 @@ class Bot:
         return self.addressBook.add_email(name, email)
 
     @input_error
+    def edit_email(self, args):
+        name, email = args
+        return self.addressBook.edit_email(name, email)
+
+    @input_error
     def add_address(self, args):
         name, address = args
         return self.addressBook.add_address(name, address)
+
+    @input_error
+    def edit_address(self, args):
+        name, address = args
+        return self.addressBook.edit_address(name, address)
+
+    @input_error
+    def delete_contact(self, args):
+        name, = args
+        self.addressBook.delete_contact(name)
 
     def run(self):
         print("Welcome to the assistant bot!")
@@ -80,22 +89,28 @@ class Bot:
                     print("How can I help you?")
                 elif command == "add":
                     print(self.add_contact(args))
-                elif command == "change":
-                    print(self.change_contact(args))
-                elif command == "phone":
-                    print(self.show_phone(args))
-                elif command == "all":
-                    print(self.show_all())
+                elif command == "edit-phone":
+                    print(self.edit_phone(args))
+                elif command == "show-all-contacts":
+                    print(self.show_all_contacts())
                 elif command == "add-birthday":
                     print(self.add_birthday(args))
-                elif command == "show-birthday":
-                    print(self.show_birthday(args))
+                elif command == "edit-birthday":
+                    print(self.edit_birthday(args))
                 elif command == "birthdays":
                     print(self.birthdays())
                 elif command == "add-email":
                     print(self.add_email(args))
+                elif command == "edit-email":
+                    print(self.edit_email(args))
                 elif command == "add-address":
                     print(self.add_address(args))
+                elif command == "edit-address":
+                    print(self.edit_address(args))
+                elif command == "show-contact":
+                    print(self.show_contact(args))
+                elif command == "delete-contact":
+                    print(self.delete_contact(args))
                 else:
                     print("Invalid command.")
             except Exception:

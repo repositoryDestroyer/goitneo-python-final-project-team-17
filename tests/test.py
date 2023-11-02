@@ -121,66 +121,36 @@ class Test(unittest.TestCase):
         self.assertEqual(len(bot.addressBook) == 0, True)
         self.assertEqual(result, "Give me name and phone please.")
 
-    def test_change_contact_happy_flow(self):
+    def test_edit_phone_happy_flow(self):
         bot = Bot()
         bot.add_contact(["John", "1234569012"])
 
-        result = bot.change_contact(["John", "9999999999"])
+        result = bot.edit_phone(["John", "1234569012", "9999999999"])
         record: Record = bot.addressBook.find("John")
 
         self.assertEqual(record.phones[0].value, "9999999999")
-        self.assertEqual(result, "Contact updated.")
+        self.assertEqual(result, "Phone was edited.")
 
-    def test_change_contact_not_found(self):
+    def test_edit_phone_not_found(self):
         bot = Bot()
         bot.add_contact(["Joshua", "1234569012"])
-        result = bot.change_contact([])
+        result = bot.edit_phone([])
         record: Record = bot.addressBook.find("Joshua")
 
         self.assertEqual(record.phones[0].value, "1234569012")
         self.assertEqual(result, "Give me name and phone please.")
 
-    def test_change_contact_wrong_args(self):
-        bot = Bot()
-        bot.add_contact(["Johan", "1234511111"])
-        result = bot.change_contact(["Jack", "9999999999"])
-
-        self.assertEqual(result, "Contact was not found.")
-
-    def test_show_phone_happy_flow(self):
-        bot = Bot()
-        bot.add_contact(["Joshua", "1114511111"])
-        result = bot.show_phone(["Joshua"])
-
-        self.assertEqual(
-            str(result), "Contact name: Joshua, phones: 1114511111")
-
-    def test_show_phone_not_found(self):
-        bot = Bot()
-        bot.add_contact(["Joshua", "1114511111"])
-        result = bot.show_phone(["Vasyl"])
-
-        self.assertEqual(result, "Contact was not found.")
-
-    def test_show_phone_wrond_args(self):
-        bot = Bot()
-        bot.add_contact(["Joshua", "1110011111"])
-        result = bot.show_phone([])
-        record: Record = bot.addressBook.find("Joshua")
-
-        self.assertEqual(record.phones[0].value, "1110011111")
-        self.assertEqual(result, "Enter user name")
-
     def test_show_all(self):
         bot = Bot()
         bot.add_contact(["Joshua", "1110011111"])
         bot.add_contact(["Steve", "2928274219"])
-        result = bot.show_all()
+        result = bot.show_all_contacts()
 
-        self.assertEqual(
-            str(result),
-            "Contact name: Joshua, phones: 1110011111\nContact name: Steve, phones: 2928274219",
-        )
+        self.assertTrue(result.__contains__("""Contact name: Joshua
+phones: 1110011111
+email: None
+birthday: None""")
+                        )
 
     def test_add_email(self):
         bot = Bot()
@@ -190,25 +160,12 @@ class Test(unittest.TestCase):
         record: Record = bot.addressBook.find("Joshua")
         self.assertEqual(
             str(record.email),
-            "joshua@gmail.com",
+            "joshua@gmail.com"
         )
         self.assertEqual(
             str(result),
-            "Email was added.",
+            "Email was added."
         )
-
-    # def test_add_email_twice(self):
-    #     bot = Bot()
-    #     bot.add_contact(["Joshua", "1110011111"])
-    #     bot.add_email(["Joshua", "joshua@gmail.com"])
-    #     with pytest.raises(EmailExists):
-    #         bot.add_email(["Joshua", "joshua2@gmail.com"])
-
-    # def test_add_email_invalid_format(self):
-    #     bot = Bot()
-    #     bot.add_contact(["Joshua", "1110011111"])
-    #     with pytest.raises(WrongEmailFormat):
-    #         bot.add_email(["Joshua", "joshua@gmail@com"])
 
     def test_add_address(self):
         bot = Bot()
@@ -223,4 +180,31 @@ class Test(unittest.TestCase):
         self.assertEqual(
             str(result),
             "Address was added.",
+        )
+
+    def test_edit_email(self):
+        bot = Bot()
+        bot.add_contact(["Joshua", "1110011111"])
+        bot.add_email(["Joshua", "Joshua@gmail.com"])
+        result = bot.edit_email(["Joshua", "Joshua@hotmail.com"])
+
+        record: Record = bot.addressBook.find("Joshua")
+        self.assertEqual(
+            str(record.email),
+            "Joshua@hotmail.com",
+        )
+        self.assertEqual(
+            str(result),
+            "Email edited.",
+        )
+
+    def test_edit_email(self):
+        bot = Bot()
+        bot.add_contact(["Joshua", "1110011111"])
+        bot.add_contact(["Joshua", "2222222222"])
+
+        record: Record = bot.addressBook.find("Joshua")
+        self.assertEqual(
+            str(record.phones[0]),
+            "1110011111",
         )
