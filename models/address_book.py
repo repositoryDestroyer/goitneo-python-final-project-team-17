@@ -1,9 +1,12 @@
 from datetime import datetime
 from collections import defaultdict
 from collections import UserDict
+
+from .birthday import Birthday
+from .name import Name
 from .phone import Phone
 from .record import Record
-from .name import Name
+
 
 
 class AddressBook(UserDict):
@@ -105,6 +108,22 @@ class AddressBook(UserDict):
 
         # return prepared values just for unittest (plz, don't treat it as a wrong realization)
         return prepared_data
+
+    def to_dict(self):
+        data = {}
+        for value in self.data.values():
+            data.update({str(value.name): {"name": str(value.name),
+                                           "phones": [str(phone) for phone in value.phones],
+                                           "birthday": str(value.birthday)}})
+
+        return data
+
+    def from_dict(self, data):
+        for name in data:
+            raw_name = data[name]
+            self.add_record(Record(Name(raw_name['name']),
+                                   [Phone(p) for p in raw_name['phones']],
+                                    None if raw_name['birthday'] == "None" else Birthday(raw_name['birthday'])))
 
     def __str__(self):
         prepared_data = []
