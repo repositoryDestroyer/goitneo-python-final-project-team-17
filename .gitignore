@@ -2,6 +2,7 @@
 
 .vscode/
 notes.json
+address_book.pickle
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
