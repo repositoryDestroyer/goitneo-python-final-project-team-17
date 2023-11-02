@@ -73,7 +73,7 @@ class Bot:
     @input_error
     def delete_contact(self, args):
         name, = args
-        self.addressBook.delete_contact(name)
+        return self.addressBook.delete(name)
 
     def run(self):
         print("Welcome to the assistant bot!")
