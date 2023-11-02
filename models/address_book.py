@@ -4,9 +4,12 @@ from collections import UserDict
 
 from exceptions.missing_record import MissingRecord
 from exceptions.record_exists import RecordExists
+
+from .birthday import Birthday
+from .name import Name
 from .phone import Phone
 from .record import Record
-from .name import Name
+
 
 
 class AddressBook(UserDict):
@@ -87,12 +90,10 @@ class AddressBook(UserDict):
 
             # check current weekday is weekend, move to the next monday
             if weekday in [5, 6]:
-                prepared_data["Monday"] = (
-                    prepared_data["Monday"] or []) + [name]
+                prepared_data["Monday"] = (prepared_data["Monday"] or []) + [name]
             else:
                 birthday = birthday_this_year.strftime("%A")
-                prepared_data[birthday] = (
-                    prepared_data[birthday] or []) + [name]
+                prepared_data[birthday] = (prepared_data[birthday] or []) + [name]
 
         if len(prepared_data) == 0:
             print("There are no birthday colleagues during next week.")
@@ -104,6 +105,22 @@ class AddressBook(UserDict):
 
         # return prepared values just for unittest (plz, don't treat it as a wrong realization)
         return prepared_data
+
+    def to_dict(self):
+        data = {}
+        for value in self.data.values():
+            data.update({str(value.name): {"name": str(value.name),
+                                           "phones": [str(phone) for phone in value.phones],
+                                           "birthday": str(value.birthday)}})
+
+        return data
+
+    def from_dict(self, data):
+        for name in data:
+            raw_name = data[name]
+            self.add_record(Record(Name(raw_name['name']),
+                                   [Phone(p) for p in raw_name['phones']],
+                                    None if raw_name['birthday'] == "None" else Birthday(raw_name['birthday'])))
 
     def __str__(self):
         result = ""
