@@ -8,11 +8,6 @@ class Note():
         self.__tags = set()
         self.tags = tags
 
-    def add_tag(self, tags):
-        new_tag = [tag for tag in tags]
-        for i in new_tag:
-            self.__tags.add(i)
-
     @property
     def tags(self):
         return self.__tags
@@ -24,7 +19,6 @@ class Note():
         elif isinstance(tags, list):
             for tag in tags:
                 self.__tags.add(tag)
-
 
     def update_title(self, new_title):
         old_title = self.title
@@ -44,9 +38,9 @@ class Note():
         except TypeError:
             old_tag = 'There are no tags!'
 
-        self.__tags = new_tag
+        self.__tags = set(new_tag)
 
-        return "Tag: '{0}' has been changed to '{1}'".format(old_tag, new_tag)
+        return "Tag: '{0}' has been changed to '{1}'".format(old_tag, set(new_tag))
 
     def __str__(self):
         return self.title
@@ -56,7 +50,7 @@ class Note():
         text_to_str = '{}'.format(self.text)
         tags_to_str = ','.join([str(tag) for tag in self.__tags])
 
-        return '{0} | title: {0}, text: {1}, tags: {2}'.format(title_to_str, text_to_str, tags_to_str)
+        return 'title: {0}, text: {1}, tags: {2}'.format(title_to_str, text_to_str, tags_to_str)
 
 
 class Tag():
@@ -71,7 +65,7 @@ class Tag():
     @value.setter
     def value(self, tag: str):
         if isinstance(tag, str):
-            result = tag.lower().replace(" ","")
+            result = tag.lower().strip()
             self.__value = result
 
     def __str__(self):
@@ -83,7 +77,7 @@ class Tag():
 
 class Notes(UserDict):
     def add_note(self, note: Note):
-        if note.title in self.keys():
+        if note.title.lower() in map(lambda key: key.lower(), self.keys()):
             return '{} already exists.'.format(note.title)
         self[note.title] = note
         return '{} has been added to Notes successfully!'.format(note.title)
@@ -92,8 +86,10 @@ class Notes(UserDict):
         notes = []
         for note in self.values():
             if word.lower() in note.__repr__():
-                notes.append({note})
-        return notes or "There is nothing!"
+                notes.append('title: {}, text: {}, tags: {}'.format(
+                    note.title, note.text, note.tags))
+
+        return '\n'.join(notes) if notes else "No records were found for your request."
 
     def delete_note(self, word: str):
         for note in self.values():
@@ -105,17 +101,20 @@ class Notes(UserDict):
 
     def get_all_notes(self):
         result = []
-        for key, value in self.items():
-            result.append('{} | title: {}, text: {}, tags: {}'.format(key, value.title, value.text, value.tags))
-        return result
+        for value in self.values():
+            result.append('title: {}, text: {}, tags: {}'.format(
+                value.title, value.text, value.tags))
+        return '\n'.join(result)
 
     def to_dict(self):
         data = {}
         for note in self.data.values():
-            data.update({str(note.title): {"title": note.title, "text": note.text, "tags": [str(tag) for tag in note.tags]}})
+            data.update({str(note.title): {"title": note.title, "text": note.text, "tags": [
+                        str(tag) for tag in note.tags]}})
         return data
 
     def from_dict(self, data):
         for note in data:
             raw_note = data[note]
-            self.add_note(Note(raw_note['title'], raw_note['text'], [Tag(value) for value in raw_note['tags']]))
+            self.add_note(Note(raw_note['title'], raw_note['text'], [
+                          Tag(value) for value in raw_note['tags']]))

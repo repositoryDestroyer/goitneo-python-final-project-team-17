@@ -72,7 +72,11 @@ class Bot:
         text = input("Input Note text: ")
         raw_tags = input("Input tags like tag1,tag2,tag3... : ")
 
-        tags = [Tag(tag.strip()) for tag in raw_tags.split(',')]
+        tags = []
+        for tag in raw_tags.split(','):
+            if tag:
+                tags.append(Tag(tag.strip()))
+
         note = Note(title=title, text=text, tags=tags)
 
         response = self.notes.add_note(note)
@@ -101,7 +105,8 @@ class Bot:
         result = []
         for key, value in self.notes.items():
             if note == key:
-                result = ('{} | title: {}, text: {}, tags: {}'.format(key, value.title, value.text, value.tags))
+                result = ('title: {}, text: {}, tags: {}'.format(
+                    value.title, value.text, value.tags))
                 return result
         return 'There are no results with {}'.format(note)
 
@@ -122,7 +127,8 @@ class Bot:
         if note == None:
             return "No Note."
 
-        change_request = input("Press 1 for title changing, Press 2 for text changing, Press 3 for tag changing: ")
+        change_request = input(
+            "Press 1 for title changing, Press 2 for text changing, Press 3 for tag changing: ")
 
         match change_request:
             case '1':
@@ -153,7 +159,8 @@ class Bot:
                 old_tags = note.tags
                 raw_new_tags = input('Input new tag: ')
 
-                new_tags = [Tag(tag.strip()) for tag in raw_new_tags.split(',')]
+                new_tags = [Tag(tag.strip())
+                            for tag in raw_new_tags.split(',')]
                 note.update_tags(new_tags)
                 self.notes[note.title] = note
                 dump_notes(notes_json, self.notes.to_dict())
@@ -178,7 +185,6 @@ class Bot:
     def add_address(self, args):
         name, address = args
         return self.addressBook.add_address(name, address)
-
 
     def run(self):
         print("Welcome to the assistant bot!")
@@ -217,14 +223,13 @@ class Bot:
                     print(self.get_note_by_title(args))
                 elif command == "update-note":
                     print(self.update_note(args))
+                elif command == "find-notes":
+                    print(self.find_notes_by_word(args))
                 elif command == "add-email":
                     print(self.add_email(args))
                 elif command == "add-address":
                     print(self.add_address(args))
-                elif command == "find-notes":
-                    print(self.find_notes_by_word(args))
                 else:
                     print("Invalid command.")
             except Exception as e:
                 print('Error: ===> {}'.format(e))
-
