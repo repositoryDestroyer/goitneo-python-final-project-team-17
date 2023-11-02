@@ -91,12 +91,10 @@ class AddressBook(UserDict):
 
             # check current weekday is weekend, move to the next monday
             if weekday in [5, 6]:
-                prepared_data["Monday"] = (
-                    prepared_data["Monday"] or []) + [name]
+                prepared_data["Monday"] = (prepared_data["Monday"] or []) + [name]
             else:
                 birthday = birthday_this_year.strftime("%A")
-                prepared_data[birthday] = (
-                    prepared_data[birthday] or []) + [name]
+                prepared_data[birthday] = (prepared_data[birthday] or []) + [name]
 
         if len(prepared_data) == 0:
             print("There are no birthday colleagues during next week.")

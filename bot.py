@@ -1,19 +1,21 @@
+import pickle
 from decorators.input_error import input_error
 from decorators.note_error import note_error
 from exceptions.address_exists import AddressExists
 from models.address_book import AddressBook
 from models.note import Note, Notes, Tag
 from models.record import Record
-from utils.contacts import dump_notes, load_notes
+from utils.notes import dump_notes, load_notes
+from utils.address_book import load_address_book, save_address_book
 
 
-notes_json = 'notes.json'
+notes_json = "notes.json"
+address_book_filename = "address_book.pickle"
 
 
 class Bot:
-
     def __init__(self):
-        self.addressBook = AddressBook()
+        self.address_book = load_address_book(address_book_filename)
         self.notes = Notes()
         self.notes.from_dict(load_notes(notes_json))
 
@@ -28,7 +30,7 @@ class Bot:
 
         prepared_record = Record(name)
         prepared_record.add_phone(phone)
-        self.addressBook.add_record(prepared_record)
+        self.address_book.add_record(prepared_record)
 
         return "Contact added."
 
@@ -36,13 +38,13 @@ class Bot:
     def change_contact(self, args):
         name, phone = args
 
-        return self.addressBook.edit_record_phone(name, phone)
+        return self.address_book.edit_record_phone(name, phone)
 
     @input_error
     def show_phone(self, args):
         name = args[0]
 
-        search_result: Record = self.addressBook.find(name)
+        search_result: Record = self.address_book.find(name)
 
         if search_result is None:
             return "Contact was not found."
@@ -50,20 +52,20 @@ class Bot:
         return search_result
 
     def show_all(self):
-        return str(self.addressBook)
+        return str(self.address_book)
 
     @input_error
     def add_birthday(self, args):
         name, birthday = args
-        return self.addressBook.add_birthday(name, birthday)
+        return self.address_book.add_birthday(name, birthday)
 
     @input_error
     def show_birthday(self, args):
         name = args[0]
-        return self.addressBook.show_birthday(name)
+        return self.address_book.show_birthday(name)
 
     def birthdays(self):
-        return self.addressBook.get_birthdays_per_week()
+        return self.address_book.get_birthdays_per_week()
 
     @note_error
     def create_note(self, args):
@@ -73,7 +75,7 @@ class Bot:
         raw_tags = input("Input tags like tag1,tag2,tag3... : ")
 
         tags = []
-        for tag in raw_tags.split(','):
+        for tag in raw_tags.split(","):
             if tag:
                 tags.append(Tag(tag.strip()))
 
@@ -93,7 +95,7 @@ class Bot:
         try:
             note = self.notes.delete_note(args[0])
         except IndexError:
-            return 'There is no the note.'
+            return "There is no the note."
 
         dump_notes(notes_json, self.notes.to_dict())
         return note
@@ -105,10 +107,11 @@ class Bot:
         result = []
         for key, value in self.notes.items():
             if note == key:
-                result = ('title: {}, text: {}, tags: {}'.format(
-                    value.title, value.text, value.tags))
+                result = "title: {}, text: {}, tags: {}".format(
+                    value.title, value.text, value.tags
+                )
                 return result
-        return 'There are no results with {}'.format(note)
+        return "There are no results with {}".format(note)
 
     @note_error
     def update_note(self, args):
@@ -116,9 +119,9 @@ class Bot:
 
         try:
             if args[0]:
-                title = ' '.join(args).lower()
+                title = " ".join(args).lower()
         except IndexError as e:
-            return '{}'.format(e)
+            return "{}".format(e)
 
         for key, value in self.notes.items():
             if title == key.lower():
@@ -128,14 +131,15 @@ class Bot:
             return "No Note."
 
         change_request = input(
-            "Press 1 for title changing, Press 2 for text changing, Press 3 for tag changing: ")
+            "Press 1 for title changing, Press 2 for text changing, Press 3 for tag changing: "
+        )
 
         match change_request:
-            case '1':
+            case "1":
                 old_title = note.title
-                new_title = input('Input new title: ')
+                new_title = input("Input new title: ")
 
-                if new_title == '':
+                if new_title == "":
                     raise IndexError("Incorrect title input.")
 
                 note.update_title(new_title)
@@ -143,32 +147,31 @@ class Bot:
                 self.notes[new_title] = note
                 dump_notes(notes_json, self.notes.to_dict())
 
-                return '{} has been changed to {}'.format(old_title, new_title)
+                return "{} has been changed to {}".format(old_title, new_title)
 
-            case '2':
+            case "2":
                 old_text = note.text
-                new_text = input('Input new text: ')
+                new_text = input("Input new text: ")
 
                 note.update_text(new_text)
                 self.notes[note.title] = note
                 dump_notes(notes_json, self.notes.to_dict())
 
-                return '{} has been changed to {}'.format(old_text, new_text)
+                return "{} has been changed to {}".format(old_text, new_text)
 
-            case '3':
+            case "3":
                 old_tags = note.tags
-                raw_new_tags = input('Input new tag: ')
+                raw_new_tags = input("Input new tag: ")
 
-                new_tags = [Tag(tag.strip())
-                            for tag in raw_new_tags.split(',')]
+                new_tags = [Tag(tag.strip()) for tag in raw_new_tags.split(",")]
                 note.update_tags(new_tags)
                 self.notes[note.title] = note
                 dump_notes(notes_json, self.notes.to_dict())
 
-                return '{} has been changed to {}'.format(old_tags, new_tags)
+                return "{} has been changed to {}".format(old_tags, new_tags)
 
             case _:
-                raise IndexError('Incorrect input.') from None
+                raise IndexError("Incorrect input.") from None
 
     @note_error
     def find_notes_by_word(self, args):
@@ -179,12 +182,12 @@ class Bot:
     @input_error
     def add_email(self, args):
         name, email = args
-        return self.addressBook.add_email(name, email)
+        return self.address_book.add_email(name, email)
 
     @input_error
     def add_address(self, args):
         name, address = args
-        return self.addressBook.add_address(name, address)
+        return self.address_book.add_address(name, address)
 
     def run(self):
         print("Welcome to the assistant bot!")
@@ -195,6 +198,7 @@ class Bot:
 
             try:
                 if command in ["close", "exit", "bye"]:
+                    save_address_book(address_book_filename, self.address_book)
                     print("Good bye!")
                     break
                 elif command == "hello":
@@ -232,4 +236,4 @@ class Bot:
                 else:
                     print("Invalid command.")
             except Exception as e:
-                print('Error: ===> {}'.format(e))
+                print("Error: ===> {}".format(e))
