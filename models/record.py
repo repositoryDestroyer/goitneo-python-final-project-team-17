@@ -23,8 +23,10 @@ class Record:
     def add_phone(self, phone_number):
         if phone_number:
             phone = Phone(phone_number)
-            if phone in self.phones:
-                raise PhoneExists
+
+            for exist_phone in self.phones:
+                if phone.value == exist_phone.value:
+                    raise PhoneExists
             self.phones.append(phone)
 
     def add_birthday(self, birthday):
@@ -70,6 +72,10 @@ class Record:
     def edit_phone(self, number_to_edit, new_number):
         if not (number_to_edit or new_number):
             return self.phones
+
+        for exist_phone in self.phones:
+            if new_number == exist_phone.value:
+                raise PhoneExists
 
         for index, phone in enumerate(self.phones):
             if phone.value == number_to_edit:

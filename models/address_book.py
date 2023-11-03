@@ -22,6 +22,10 @@ class AddressBook(UserDict):
             raise RecordExists
         self.data[record_name.value] = record
 
+    def add_phone(self, name, phone):
+        target_record: Record = self.find(name)
+        target_record.add_phone(phone)
+
     def add_birthday(self, name, birthday):
         target_record: Record = self.find(name)
         target_record.add_birthday(birthday)

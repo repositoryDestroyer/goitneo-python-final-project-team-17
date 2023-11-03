@@ -35,6 +35,13 @@ class Bot:
         return "Contact added."
 
     @input_error
+    def add_phone(self, args):
+        name, phone = args
+        self.addressBook.add_phone(name, phone)
+
+        return f"Phone to contact {name} added."
+
+    @input_error
     def edit_phone(self, args):
         name, oldPhone, newPhone = args
         return self.addressBook.edit_phone(name, oldPhone, newPhone)
@@ -223,6 +230,8 @@ class Bot:
                     print("How can I help you?")
                 elif command == "add":
                     print(self.add_contact(args))
+                elif command == "add-phone":
+                    print(self.add_phone(args))
                 elif command == "edit-phone":
                     print(self.edit_phone(args))
                 elif command == "add-email":
