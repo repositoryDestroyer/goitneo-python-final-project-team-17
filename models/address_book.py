@@ -54,6 +54,7 @@ class AddressBook(UserDict):
     def edit_address(self, name, address):
         target_record: Record = self.find(name)
         target_record.edit_address(address)
+        return "Address was edited."
 
     def find(self, name):
         if name in self.data:
@@ -72,10 +73,10 @@ class AddressBook(UserDict):
 
     def get_birthdays(self, period):
         if int(period) < 1:
-            return 'The number of days must be greater than 0.'
+            return "The number of days must be greater than 0."
         today = datetime.today().date()
         prepared_data = defaultdict(list)
-        birthday_result = ''
+        birthday_result = ""
 
         for record in self.data.values():
             if not record.birthday:
@@ -99,7 +100,11 @@ class AddressBook(UserDict):
             birthday_result = f"There are no birthdays during next {period} days."
         else:
             birthday_result = "\n".join(
-                [f"{day.strftime('%d.%m.%Y')}: {', '.join(names)}" for day, names in prepared_data.items()])
+                [
+                    f"{day.strftime('%d.%m.%Y')}: {', '.join(names)}"
+                    for day, names in prepared_data.items()
+                ]
+            )
 
         return birthday_result
 
@@ -111,15 +116,82 @@ class AddressBook(UserDict):
     #                                        "birthday": str(value.birthday)}})
     #     return data
 
-    # def from_dict(self, data):
-    #     for name in data:
-    #         raw_name = data[name]
-    #         self.add_record(Record(Name(raw_name['name']),
-    #                                [Phone(p) for p in raw_name['phones']],
-    #                                None if raw_name['birthday'] == "None" else Birthday(raw_name['birthday'])))
+    def from_dict(self, data):
+        for name in data:
+            raw_name = data[name]
+            self.add_record(
+                Record(
+                    Name(raw_name["name"]),
+                    [Phone(p) for p in raw_name["phones"]],
+                    None
+                    if raw_name["birthday"] == "None"
+                    else Birthday(raw_name["birthday"]),
+                )
+            )
 
     def __str__(self):
         result = ""
         for value in self.data.values():
             result += str(value)
         return result
+
+    def records_to_string(self, records: [Record]):
+        prepared_data = []
+
+        for value in records:
+            prepared_data.append(str(value))
+
+        return "\n".join(prepared_data)
+
+    def find_by_name(self, search_phrase):
+        partial_match = search_phrase.lower()
+        matching_records = [
+            record
+            for record in self.data.values()
+            if partial_match in record.name.get_lower()
+        ]
+
+        if len(matching_records) == 0:
+            return f"No records were found by search_phrase: {search_phrase}"
+
+        return self.records_to_string(matching_records)
+
+    def find_by_phone(self, search_phrase):
+        partial_match = search_phrase.lower()
+        matching_records = [
+            record
+            for record in self.data.values()
+            for phone in record.phones
+            if partial_match in phone.value
+        ]
+
+        if len(matching_records) == 0:
+            return f"No records were found by search_phrase: {search_phrase}"
+
+        return self.records_to_string(matching_records)
+
+    def find_by_email(self, search_phrase):
+        partial_match = search_phrase.lower()
+        matching_records = [
+            record
+            for record in self.data.values()
+            if record.email and partial_match in record.email.get_lower()
+        ]
+
+        if len(matching_records) == 0:
+            return f"No records were found by search_phrase: {search_phrase}"
+
+        return self.records_to_string(matching_records)
+
+    def find_by_address(self, search_phrase):
+        partial_match = search_phrase.lower()
+        matching_records = [
+            record
+            for record in self.data.values()
+            if record.address and partial_match in record.address.get_lower()
+        ]
+
+        if len(matching_records) == 0:
+            return f"No records were found by search_phrase: {search_phrase}"
+
+        return self.records_to_string(matching_records)
