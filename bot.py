@@ -175,7 +175,8 @@ class Bot:
                 old_tags = note.tags
                 raw_new_tags = input("Input new tag: ")
 
-                new_tags = [Tag(tag.strip()) for tag in raw_new_tags.split(",")]
+                new_tags = [Tag(tag.strip())
+                            for tag in raw_new_tags.split(",")]
                 note.update_tags(new_tags)
                 self.notes[note.title] = note
                 dump_notes(notes_json, self.notes.to_dict())
@@ -253,26 +254,16 @@ class Bot:
         ]
 
         if len(matching_records):
+            commands_list = '\n'.join(matching_records)
             print(
-                f"Maybe you wanted to choose some of these commands: {'; '.join(matching_records)}"
+                f"Maybe you wanted to choose some of these commands:\n{commands_list}"
             )
             return
 
         print("Invalid command.")
 
-    def __handle_invalid_command(self, command):
-        partial_match = command
-        matching_records = [
-            command for command in self.allowed_commands if partial_match in command
-        ]
-
-        if len(matching_records):
-            print(
-                f"Maybe you wanted to choose some of these commands: {'; '.join(matching_records)}"
-            )
-            return
-
-        print("Invalid command.")
+    def show_all_commands(self):
+        return '\n'.join(self.allowed_commands)
 
     def run(self):
         print("Welcome to the assistant bot!")
@@ -292,6 +283,8 @@ class Bot:
                     break
                 elif command == Command.HELLO.value:
                     print("How can I help you?")
+                elif command == Command.HELP.value:
+                    print(self.show_all_commands())
                 elif command == Command.ADD.value:
                     print(self.add_contact(args))
                 elif command == Command.ADD_PHONE.value:
@@ -338,10 +331,6 @@ class Bot:
                     print(self.find_contacts_by_email(args))
                 elif command == Command.FIND_CONTACTS_BY_ADDRESS.value:
                     print(self.find_contacts_by_address(args))
-                elif command == Command.ADD_EMAIL.value:
-                    print(self.add_email(args))
-                elif command == Command.ADD_ADDRESS.value:
-                    print(self.add_address(args))
                 else:
                     self.__handle_invalid_command(command)
             except Exception as e:

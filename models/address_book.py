@@ -54,6 +54,7 @@ class AddressBook(UserDict):
     def edit_address(self, name, address):
         target_record: Record = self.find(name)
         target_record.edit_address(address)
+        return "Address was edited."
 
     def find(self, name):
         if name in self.data:
