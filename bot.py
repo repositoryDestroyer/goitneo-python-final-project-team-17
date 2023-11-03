@@ -63,6 +63,14 @@ class Bot:
     def birthdays(self):
         return self.address_book.get_birthdays_per_week()
 
+    def show_birthday(self, args):
+        name = args[0]
+        return self.address_book.show_birthday(name)
+
+    def birthdays(self, args):
+        period = args[0]
+        return self.address_book.get_birthdays(period)
+
     @note_error
     def create_note(self, args):
         title = args[0]
@@ -159,7 +167,8 @@ class Bot:
                 old_tags = note.tags
                 raw_new_tags = input("Input new tag: ")
 
-                new_tags = [Tag(tag.strip()) for tag in raw_new_tags.split(",")]
+                new_tags = [Tag(tag.strip())
+                            for tag in raw_new_tags.split(",")]
                 note.update_tags(new_tags)
                 self.notes[note.title] = note
                 dump_notes(notes_json, self.notes.to_dict())
@@ -225,7 +234,7 @@ class Bot:
                 elif command == "edit-birthday":
                     print(self.edit_birthday(args))
                 elif command == "birthdays":
-                    print(self.birthdays())
+                    print(self.birthdays(args))
                 elif command == "add-note":
                     print(self.create_note(args))
                 elif command == "show-notes":

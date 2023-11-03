@@ -11,7 +11,6 @@ from .phone import Phone
 from .record import Record
 
 
-
 class AddressBook(UserDict):
     def add_record(self, record: Record):
         if not record:
@@ -67,44 +66,38 @@ class AddressBook(UserDict):
         del self.data[name]
         return "Contact deleted."
 
-    def get_birthdays_per_week(self):
+    def get_birthdays(self, period):
+        if int(period) < 1:
+            return 'The number of days must be greater than 0.'
         today = datetime.today().date()
         prepared_data = defaultdict(list)
+        birthday_result = ''
 
         for record in self.data.values():
-            if record.birthday != None:
-                name = str(record.get_name())
-                birthday = record.show_birthday().get_date()
-                birthday_this_year = birthday.replace(year=today.year)
+            if not record.birthday:
+                continue
+
+            name = str(record.get_name())
+            birthday = record.show_birthday().get_date()
+            birthday_this_year = birthday.replace(year=today.year)
 
             if birthday_this_year < today:
                 birthday_this_year = birthday.replace(year=today.year + 1)
 
             delta_days = (birthday_this_year - today).days
 
-            # skip if birhday is after week from today
-            if delta_days >= 7:
+            if delta_days > int(period):
                 continue
 
-            weekday = birthday_this_year.weekday()
-
-            # check current weekday is weekend, move to the next monday
-            if weekday in [5, 6]:
-                prepared_data["Monday"] = (prepared_data["Monday"] or []) + [name]
-            else:
-                birthday = birthday_this_year.strftime("%A")
-                prepared_data[birthday] = (prepared_data[birthday] or []) + [name]
+            prepared_data[birthday_this_year].append(name)
 
         if len(prepared_data) == 0:
-            print("There are no birthday colleagues during next week.")
+            birthday_result = f"There are no birthdays during next {period} days."
+        else:
+            birthday_result = "\n".join(
+                [f"{day.strftime('%d.%m.%Y')}: {', '.join(names)}" for day, names in prepared_data.items()])
 
-        # simply print prepared birthday colleagues
-        for day in prepared_data:
-            birthday_colleagues = prepared_data[day]
-            print(f"{day}: {', '.join(birthday_colleagues)}")
-
-        # return prepared values just for unittest (plz, don't treat it as a wrong realization)
-        return prepared_data
+        return birthday_result
 
     def to_dict(self):
         data = {}
@@ -120,7 +113,7 @@ class AddressBook(UserDict):
             raw_name = data[name]
             self.add_record(Record(Name(raw_name['name']),
                                    [Phone(p) for p in raw_name['phones']],
-                                    None if raw_name['birthday'] == "None" else Birthday(raw_name['birthday'])))
+                                   None if raw_name['birthday'] == "None" else Birthday(raw_name['birthday'])))
 
     def __str__(self):
         result = ""
