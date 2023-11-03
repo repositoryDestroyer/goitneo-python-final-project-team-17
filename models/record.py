@@ -93,4 +93,5 @@ Contact name: {self.name.value}
 phones: {'; '.join(p.value for p in self.phones)}
 email: {self.email}
 birthday: {self.birthday}
-        """
+address: {self.address}
+"""

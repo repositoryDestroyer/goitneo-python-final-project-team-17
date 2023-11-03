@@ -15,7 +15,7 @@ address_book_filename = "address_book.pickle"
 
 class Bot:
     def __init__(self):
-        self.address_book = load_address_book(address_book_filename)
+        self.addressBook = load_address_book(address_book_filename)
         self.notes = Notes()
         self.notes.from_dict(load_notes(notes_json))
 
@@ -30,7 +30,7 @@ class Bot:
 
         prepared_record = Record(name)
         prepared_record.add_phone(phone)
-        self.address_book.add_record(prepared_record)
+        self.addressBook.add_record(prepared_record)
 
         return "Contact added."
 
@@ -38,7 +38,6 @@ class Bot:
     def edit_phone(self, args):
         name, oldPhone, newPhone = args
         return self.addressBook.edit_phone(name, oldPhone, newPhone)
-
 
     @input_error
     def show_contact(self, args):
@@ -49,27 +48,26 @@ class Bot:
     def show_all_contacts(self):
         return str(self.addressBook)
 
-
     @input_error
     def add_birthday(self, args):
         name, birthday = args
-        return self.address_book.add_birthday(name, birthday)
+        return self.addressBook.add_birthday(name, birthday)
 
     @input_error
     def edit_birthday(self, args):
         name, birthday = args
         return self.addressBook.edit_birthday(name, birthday)
-      
+
     def birthdays(self):
-        return self.address_book.get_birthdays_per_week()
+        return self.addressBook.get_birthdays_per_week()
 
     def show_birthday(self, args):
         name = args[0]
-        return self.address_book.show_birthday(name)
+        return self.addressBook.show_birthday(name)
 
     def birthdays(self, args):
         period = args[0]
-        return self.address_book.get_birthdays(period)
+        return self.addressBook.get_birthdays(period)
 
     @note_error
     def create_note(self, args):
@@ -187,7 +185,7 @@ class Bot:
     @input_error
     def add_email(self, args):
         name, email = args
-        return self.address_book.add_email(name, email)
+        return self.addressBook.add_email(name, email)
 
     @input_error
     def edit_email(self, args):
@@ -197,7 +195,7 @@ class Bot:
     @input_error
     def add_address(self, args):
         name, address = args
-        return self.address_book.add_address(name, address)
+        return self.addressBook.add_address(name, address)
 
     @input_error
     def edit_address(self, args):
@@ -218,7 +216,7 @@ class Bot:
 
             try:
                 if command in ["close", "exit", "bye"]:
-                    save_address_book(address_book_filename, self.address_book)
+                    save_address_book(address_book_filename, self.addressBook)
                     print("Good bye!")
                     break
                 elif command == "hello":
@@ -227,12 +225,24 @@ class Bot:
                     print(self.add_contact(args))
                 elif command == "edit-phone":
                     print(self.edit_phone(args))
-                elif command == "show-all-contacts":
-                    print(self.show_all_contacts())
+                elif command == "add-email":
+                    print(self.add_email(args))
+                elif command == "edit-email":
+                    print(self.edit_email(args))
+                elif command == "add-address":
+                    print(self.add_address(args))
+                elif command == "edit-address":
+                    print(self.edit_address(args))
                 elif command == "add-birthday":
                     print(self.add_birthday(args))
                 elif command == "edit-birthday":
                     print(self.edit_birthday(args))
+                elif command == "show-contact":
+                    print(self.show_contact(args))
+                elif command == "show-contacts":
+                    print(self.show_all_contacts())
+                elif command == "delete-contact":
+                    print(self.delete_contact(args))
                 elif command == "birthdays":
                     print(self.birthdays(args))
                 elif command == "add-note":
@@ -247,18 +257,6 @@ class Bot:
                     print(self.update_note(args))
                 elif command == "find-notes":
                     print(self.find_notes_by_word(args))
-                elif command == "add-email":
-                    print(self.add_email(args))
-                elif command == "edit-email":
-                    print(self.edit_email(args))
-                elif command == "add-address":
-                    print(self.add_address(args))
-                elif command == "edit-address":
-                    print(self.edit_address(args))
-                elif command == "show-contact":
-                    print(self.show_contact(args))
-                elif command == "delete-contact":
-                    print(self.delete_contact(args))
                 else:
                     print("Invalid command.")
             except Exception as e:
